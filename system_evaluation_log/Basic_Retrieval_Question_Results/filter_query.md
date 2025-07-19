@@ -1,14 +1,14 @@
 # filter_query
 
 ### Question template in Dutch and English
-**Ik wil zien welke woningen in {city} gebouwd zijn {filter} {year}.**
-**I want to see which houses in {city} were built {filter} {year}.**
+**Ik wil zien welke woningen in {city} gebouwd zijn {filter} {year}.**  
+**I want to see which houses in {city} were built {filter} {year}.**  
 
 ### Tested example in Dutch and English
-**Ik wil zien welke woningen in Rotterdam gebouwd zijn voor 1600.**
-**I want to see which houses in Rotterdam were built before 1600.**
+**Ik wil zien welke woningen in Rotterdam gebouwd zijn voor 1600.**  
+**I want to see which houses in Rotterdam were built before 1600.**  
 
-**Loki’s query is wrong. Loki can not answer this question. You can see in error in the JSON output below.**
+**Loki’s query is wrong. Loki can not answer this question. You can see in error in the JSON output below.**  
 SPARQL Query of the old system:
 ```sparql
 PREFIX sor-con: <https://data.kkg.kadaster.nl/sor/model/con/>
@@ -90,14 +90,14 @@ Result in JSON output:
 
 
 ### Question template in Dutch and English
-**Geef me alle woningen in {city}.**
-**Give me all the houses in {city}.**
+**Geef me alle woningen in {city}.**  
+**Give me all the houses in {city}.**  
 
 ### Tested example in Dutch and English
-**Geef me alle woningen in de woonplaats Utrecht.**
-**Give me all the houses in the town of Utrecht.**
+**Geef me alle woningen in de woonplaats Utrecht.**  
+**Give me all the houses in the town of Utrecht.**  
 
-**The problem of the old system is that without the term “woonplaats” or “gemeente” and with only the city name, it sometimes can not answer the question. Also, it can not answer this question for centain cities like Nijmegen and Zwolle. The reason is unknown. In the new system these problems do not exist. If you only give the city name in the user query without specifying “woonplaats” or “gemeente”, it gives the answer based on woonplaats in default.**
+**The problem of the old system is that without the term “woonplaats” or “gemeente” and with only the city name, it sometimes can not answer the question. Also, it can not answer this question for centain cities like Nijmegen and Zwolle. The reason is unknown. In the new system these problems do not exist. If you only give the city name in the user query without specifying “woonplaats” or “gemeente”, it gives the answer based on woonplaats in default.**  
 SPARQL Query of the old system:
 ```sparql
 PREFIX sor-con: <https://data.kkg.kadaster.nl/sor/model/con/>
@@ -191,14 +191,14 @@ Result in JSON output:
 
 
 ### Question template in Dutch and English
-**Wat zijn de panden in {city} met bouwjaar {filter} {year}?**
-**What are the buildings in {city} with year of construction {filter} {year}?**
+**Wat zijn de panden in {city} met bouwjaar {filter} {year}?**  
+**What are the buildings in {city} with year of construction {filter} {year}?**  
 
 ### Tested example in Dutch and English
-**Wat zijn de panden in 's-Gravenhage met bouwjaar na 1990?**
-**What are the buildings in The Hague built after 1990?**
+**Wat zijn de panden in 's-Gravenhage met bouwjaar na 1990?**  
+**What are the buildings in The Hague built after 1990?**  
 
-**In the new system, you are allowed with more customized question possibilities. For example, besides "Wat zijn de panden in 's-Gravenhage met bouwjaar na 1990?", you can also extend the question "Wat zijn de panden in 's-Gravenhage met bouwjaar na 1990? Geef ook de bouwjaar, oppervlakte en wgs84-coördinaten van deze panden." in a customized way for more flexibility, which is very difficult in the old system.**
+**In the new system, you are allowed with more customized question possibilities. For example, besides "Wat zijn de panden in 's-Gravenhage met bouwjaar na 1990?", you can also extend the question "Wat zijn de panden in 's-Gravenhage met bouwjaar na 1990? Geef ook de bouwjaar, oppervlakte en wgs84-coördinaten van deze panden." in a customized way for more flexibility, which is very difficult in the old system.**  
 SPARQL Query of the old system:
 ```sparql
 PREFIX kad: <https://data.kkg.kadaster.nl/kad/model/def/>
@@ -294,14 +294,14 @@ Result in JSON output:
 
 
 ### Question template in Dutch and English
-**Hoeveel gebouwen zijn er in {city} die {filter}{year} gebouwd?**
-**How many buildings were built in {city} in the last {filter}{year}?**
+**Hoeveel gebouwen zijn er in {city} die {filter}{year} gebouwd?**  
+**How many buildings were built in {city} in the last {filter}{year}?**  
 
 ### Tested example in Dutch and English
-**Hoeveel gebouwen zijn er in Amsterdam die tussen 1980 en 1985 zijn gebouwd?**
-**How many buildings were built in Amsterdam between 1980 and 1985?**
+**Hoeveel gebouwen zijn er in Amsterdam die tussen 1980 en 1985 zijn gebouwd?**  
+**How many buildings were built in Amsterdam between 1980 and 1985?**  
 
-**“tussen” in Dutch usually includes the boundaries(1980 and 1985) in this case. In the new system you can specify whether the boundary is included or not with “inclusief” and “exclusief”. Without specifying, the boundaries are included by default. But in the old system, the boundary is not included with “tussen”, and you can not flexibly specify “inclusief” or “exclusief” because it doesn’t understand.**
+**“tussen” in Dutch usually includes the boundaries(1980 and 1985) in this case. In the new system you can specify whether the boundary is included or not with “inclusief” and “exclusief”. Without specifying, the boundaries are included by default. But in the old system, the boundary is not included with “tussen”, and you can not flexibly specify “inclusief” or “exclusief” because it doesn’t understand.**  
 SPARQL Query of the old system:
 ```sparql
 PREFIX kad: <https://data.kkg.kadaster.nl/kad/model/def/>
@@ -395,13 +395,13 @@ Result in JSON output:
 
 
 ### Question template in Dutch and English
-**Waar kan ik in {city} de huizen die een bouwjaar {filter} {year} hebben vinden?**
-**Where can I find houses in {city} that were built in {filter} {year}?**
+**Waar kan ik in {city} de huizen die een bouwjaar {filter} {year} hebben vinden?**  
+**Where can I find houses in {city} that were built in {filter} {year}?**  
 
 ### Tested example in Dutch and English
-**Waar kan ik in de gemeente Groningen de huizen die een bouwjaar na 2016 hebben vinden?**
-**Where can I find houses in the municipality of Groningen that were built after 2016?**
-**The new system has a chance hallucinating on this question, probability 20%.**
+**Waar kan ik in de gemeente Groningen de huizen die een bouwjaar na 2016 hebben vinden?**  
+**Where can I find houses in the municipality of Groningen that were built after 2016?**  
+**The new system has a chance hallucinating on this question, probability 20%.**  
 
 SPARQL Query of the old system:
 ```sparql

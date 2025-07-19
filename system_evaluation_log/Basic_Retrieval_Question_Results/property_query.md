@@ -3,12 +3,12 @@
 ## These are GraphQL questions in the old system but my new system uses SPARQL to solve them.
 
 ### Question template in Dutch and English
-**Wat is de oppervlakte van mijn perceel?**
-**What is the surface area of my plot?**
+**Wat is de oppervlakte van mijn perceel?**  
+**What is the surface area of my plot?**  
 
 ### Tested example in Dutch and English
-**Wat is de oppervlakte van mijn perceel, adres Zuiderval 80, Enschede?**
-**What is the surface area of my plot at Zuiderval 80, Enschede?**
+**Wat is de oppervlakte van mijn perceel, adres Zuiderval 80, Enschede?**  
+**What is the surface area of my plot at Zuiderval 80, Enschede?**  
 
 GraphQL Query of the old system:
 ```graphql
