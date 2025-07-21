@@ -78,3 +78,32 @@ Result in JSON output:
 ```json
 [{'oppervlakte': '2405'}]
 ```
+
+
+### Question template in Dutch and English
+****  
+****  
+
+### Tested example in Dutch and English
+****  
+****  
+
+SPARQL Query of the old system:
+```sparql
+
+```
+
+Result in JSON output:
+```json
+
+```
+
+SPARQL Query of the new system:
+```sparql
+
+```
+
+Result in JSON output:
+```json
+
+```
