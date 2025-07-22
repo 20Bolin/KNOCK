@@ -1,5 +1,7 @@
 # location_query
 
+## Some of the questions in this category are GraphQL questions in the old system but my new system uses SPARQL to solve them.
+
 ### Question template in Dutch and English
 **Wat voor {property} zijn er in {granularity} te vinden?**  
 **What kind of {property} can be found in {granularity}?**  
@@ -133,3 +135,240 @@ Result in JSON output:
 ```json
 [{'buurt': 'https://data.labs.kadaster.nl/cbs/wbk/id/buurt/01530406', 'buurt_naam': 'Drienerveld-U.T.', 'buurt_geo_wgs84': 'POLYGON((6.8270580760799 52.248181557568,6.8272395722461 52.248297143998,6.8278897590798 52.248529625765,6.8296608329923 52.249179074429,6.8298265696346 52.249239865388,6.8300787909524 52.24933234658,6.8304531910533 52.249471021035,6.8310826022782 52.249702193231,6.8321601067046 52.250092128263,6.8321669388926 52.250094606547,6.8322837350343 52.250136873201,6.8323022614697 52.250143622003,6.8323091235372 52.250146117892,6.8329902656145 52.250394319513,6.8336076954265 52.250618335007,6.8340669923191 52.250789020079,6.8345188132047 52.250956693789,6.8354845542893 52.251315104545,6.8361306211168 52.251553282143,6.8361640065869 52.251565628006,6.8362261228361 52.251588605973,6.836239954435 52.251593721827,6.8369826261774 52.251868427544,6.836989164045 52.251870846243,6.8373662709042 52.252010346788,6.8374591951932 52.252044721476,6.8378797870648 52.252200289188,6.8378848720834 52.252202168363,6.838012651546 52.252249436252,6.8398984641093 52.252936237594,6.8416822314481 52.253585846771,6.8417261385127 52.253601836911,6.8419152020249 52.253670836493,6.8419410683355 52.25368023506,6.8420478430735 52.253719595304,6.8420502744796 52.253720491226,6.8420630988824 52.253725223297,6.8425622084313 52.253909192555,6.8441132309862 52.252716490066,6.8447105549947 52.251876075468,6.8478365707803 52.252275126765,6.85870552551 52.251763078973,6.8578347971483 52.250781122099,6.8564771318142 52.250898296976,6.8550941041946 52.250246977332,6.8550555239208 52.249077552614,6.8542367642902 52.249020874021,6.8537025514386 52.24770857559,6.8537455771909 52.247681074126,6.8554687160961 52.245670742707,6.8568221440092 52.244052145036,6.8568762453971 52.243916635618,6.8568364300613 52.242644547414,6.8600006681751 52.242196123339,6.8654087102617 52.24174316615,6.8653281875968 52.241571710194,6.8655398837854 52.241243050881,6.8659133435646 52.236994317914,6.8653583749383 52.236712618193,6.8633483206156 52.236831586082,6.8619857994715 52.236488957467,6.8614809125136 52.235869777499,6.8608759580193 52.234605438325,6.8596070318044 52.234777640093,6.8592389105378 52.234438213643,6.8564820398609 52.235502946761,6.8496303560543 52.238148643558,6.839785225997 52.241691667411,6.8366192791808 52.242962448031,6.8270580760799 52.248181557568))'}]
 ```
+
+
+### Question template in Dutch and English
+**Ik wil weten welke {property} in {granularity} te vinden zijn.**  
+**I want to know which {property} can be found in {granularity}.**  
+
+### Tested example in Dutch and English
+**Ik wil weten welke gemeente in de provincie Zuid-Holland te vinden zijn.**  
+**I would like to know which municipalities are located in the province of South Holland.**  
+
+**The old system can not answer this question. It generates a wrong query. Although the new system can generate the correct SPARQL query to extract the answer, it is not stable and hallucinates quite often. Thus this question is considered unsolvable for both systems.**  
+SPARQL Query of the old system:
+```sparql
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+SELECT DISTINCT (sample(?geo_wgs84) as?geo_wgs84)?naam WHERE {
+?buurt geo:sfWithin?wijk.?wijk geo:sfWithin?gemeente.?gemeente geo:sfWithin?gemeente.?gemeente owl:sameAs/^geo:sfWithin/^geo:sfWithin/^geo:sfWithin?geb. }
+LIMIT 9999
+```
+
+Result in JSON output:
+```json
+[]
+```
+
+SPARQL Query of the new system:
+```sparql
+PREFIX sor: <https://data.kkg.kadaster.nl/sor/model/def/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT ?gemeente_naam
+WHERE {
+    ?gemeente a sor:Gemeente;
+              skos:prefLabel ?gemeente_naam;
+              geo:sfWithin ?provincie.
+    ?provincie a sor:Provincie;
+               skos:prefLabel "Zuid-Holland"@nl.
+}
+```
+
+Result in JSON output:
+```json
+[{'gemeente_naam': 'Albrandswaard [1]'}, {'gemeente_naam': 'Ter Aar'}, {'gemeente_naam': 'Abbenbroek'}, {'gemeente_naam': 'Alblasserdam'}, {'gemeente_naam': 'Alkemade'}, {'gemeente_naam': 'Alphen aan den Rijn'}, {'gemeente_naam': 'Ameide'}, {'gemeente_naam': 'Ammerstol'}, {'gemeente_naam': 'Arkel'}, {'gemeente_naam': 'Asperen'}, {'gemeente_naam': 'Barendrecht [2]'}, {'gemeente_naam': 'Benthuizen'}, {'gemeente_naam': 'Bergambacht'}, {'gemeente_naam': 'Bergschenhoek'}, {'gemeente_naam': 'Berkel en Rodenrijs'}, {'gemeente_naam': 'Berkenwoude'}, {'gemeente_naam': 'Bleiswijk'}, {'gemeente_naam': 'Bleskensgraaf en Hofwegen'}, {'gemeente_naam': 'Bodegraven'}, {'gemeente_naam': 'Boskoop'}, {'gemeente_naam': 'Brandwijk'}, {'gemeente_naam': 'Brielle'}, {'gemeente_naam': 'Capelle aan den IJssel'}, {'gemeente_naam': 'Delft'}, {'gemeente_naam': 'Dirksland'}, {'gemeente_naam': 'Dordrecht'}, {'gemeente_naam': 'Driebruggen'}, {'gemeente_naam': 'Dubbeldam'}, {'gemeente_naam': 'Everdingen'}, {'gemeente_naam': 'Geervliet'}, {'gemeente_naam': 'Giessenburg'}, {'gemeente_naam': 'Goedereede'}, {'gemeente_naam': 'Gorinchem'}, {'gemeente_naam': 'Gouda'}, {'gemeente_naam': 'Gouderak'}, {'gemeente_naam': 'Goudriaan'}, {'gemeente_naam': 'Goudswaard'}, {'gemeente_naam': "'s-Gravendeel"}, {'gemeente_naam': "'s-Gravenhage"}, {'gemeente_naam': "'s-Gravenzande"}, {'gemeente_naam': 'Groot-Ammers'}, {'gemeente_naam': 'Haastrecht'}, {'gemeente_naam': 'Hagestein'}, {'gemeente_naam': 'Hardinxveld-Giessendam'}, {'gemeente_naam': 'Hazerswoude'}, {'gemeente_naam': 'Heenvliet'}, {'gemeente_naam': 'Heerjansdam'}, {'gemeente_naam': 'Hei- en Boeicop'}, {'gemeente_naam': 'Heinenoord'}, {'gemeente_naam': 'Hellevoetsluis'}, {'gemeente_naam': 'Hendrik-Ido-Ambacht'}, {'gemeente_naam': 'Heukelum'}, {'gemeente_naam': 'Hillegom'}, {'gemeente_naam': 'Hoogblokland'}, {'gemeente_naam': 'Hoornaar'}, {'gemeente_naam': 'Katwijk'}, {'gemeente_naam': 'Kedichem'}, {'gemeente_naam': 'Klaaswaal'}, {'gemeente_naam': 'Koudekerk [ZH]'}, {'gemeente_naam': 'Koudekerk aan den Rijn'}, {'gemeente_naam': 'Krimpen aan de Lek'}, {'gemeente_naam': 'Krimpen aan den IJssel'}, {'gemeente_naam': 'Langerak'}, {'gemeente_naam': 'Leerbroek'}, {'gemeente_naam': 'Leerdam'}, {'gemeente_naam': 'Leiden'}, {'gemeente_naam': 'Leiderdorp'}, {'gemeente_naam': 'Leidschendam [2]'}, {'gemeente_naam': 'Leimuiden'}, {'gemeente_naam': 'Lekkerkerk'}, {'gemeente_naam': 'Lexmond'}, {'gemeente_naam': 'De Lier'}, {'gemeente_naam': 'Lisse'}, {'gemeente_naam': 'Maasdam'}, {'gemeente_naam': 'Maasland'}, {'gemeente_naam': 'Maassluis'}, {'gemeente_naam': 'Meerkerk'}, {'gemeente_naam': 'Middelharnis'}, {'gemeente_naam': 'Moerkapelle'}, {'gemeente_naam': 'Molenaarsgraaf'}, {'gemeente_naam': 'Monster'}, {'gemeente_naam': 'Moordrecht'}, {'gemeente_naam': 'Mijnsheerenland'}, {'gemeente_naam': 'Naaldwijk'}, {'gemeente_naam': 'Nieuw-Beijerland'}, {'gemeente_naam': 'Nieuwerkerk aan den IJssel'}, {'gemeente_naam': 'Bernisse'}, {'gemeente_naam': 'Nieuwkoop'}, {'gemeente_naam': 'Nieuwland [bij Leerdam]'}, {'gemeente_naam': 'Nieuw-Lekkerland'}, {'gemeente_naam': 'Nieuwpoort'}, {'gemeente_naam': 'Nieuwveen'}, {'gemeente_naam': 'Noordeloos'}, {'gemeente_naam': 'Noordwijk'}, {'gemeente_naam': 'Noordwijkerhout'}, {'gemeente_naam': 'Nootdorp'}, {'gemeente_naam': 'Numansdorp'}, {'gemeente_naam': 'Oegstgeest'}, {'gemeente_naam': 'Oostflakkee'}, {'gemeente_naam': 'Oostvoorne'}, {'gemeente_naam': 'Ottoland'}, {'gemeente_naam': 'Oud-Alblas'}, {'gemeente_naam': 'Oud-Beijerland'}, {'gemeente_naam': 'Binnenmaas'}, {'gemeente_naam': 'Oudenhoorn'}, {'gemeente_naam': 'Ouderkerk aan den IJssel'}, {'gemeente_naam': 'Korendijk [2]'}, {'gemeente_naam': 'Papendrecht'}, {'gemeente_naam': 'Piershil'}, {'gemeente_naam': 'Poortugaal'}, {'gemeente_naam': 'Puttershoek'}, {'gemeente_naam': 'Pijnacker'}, {'gemeente_naam': 'Reeuwijk'}, {'gemeente_naam': 'Rhoon'}, {'gemeente_naam': 'Ridderkerk'}, {'gemeente_naam': 'Rockanje'}, {'gemeente_naam': 'Rotterdam'}, {'gemeente_naam': 'Rozenburg'}, {'gemeente_naam': 'Rijnsaterwoude'}, {'gemeente_naam': 'Rijnsburg'}, {'gemeente_naam': 'Rijswijk [ZH]'}, {'gemeente_naam': 'Sassenheim'}, {'gemeente_naam': 'Schelluinen'}, {'gemeente_naam': 'Schiedam'}, {'gemeente_naam': 'Schipluiden'}, {'gemeente_naam': 'Schoonhoven'}, {'gemeente_naam': 'Schoonrewoerd'}, {'gemeente_naam': 'Sliedrecht'}, {'gemeente_naam': 'Cromstrijen'}, {'gemeente_naam': 'Spijkenisse'}, {'gemeente_naam': 'Albrandswaard [2]'}, {'gemeente_naam': 'Westvoorne'}, {'gemeente_naam': 'Stolwijk'}, {'gemeente_naam': 'Streefkerk'}, {'gemeente_naam': 'Strijen'}, {'gemeente_naam': 'Tienhoven [ZH]'}, {'gemeente_naam': 'Valkenburg [ZH]'}, {'gemeente_naam': 'Vierpolders'}, {'gemeente_naam': 'Vlaardingen'}, {'gemeente_naam': 'Vlist'}, {'gemeente_naam': 'Voorburg'}, {'gemeente_naam': 'Voorhout'}, {'gemeente_naam': 'Voorschoten'}, {'gemeente_naam': 'Waddinxveen [2]'}, {'gemeente_naam': 'Warmond'}, {'gemeente_naam': 'Wassenaar'}, {'gemeente_naam': 'Wateringen'}, {'gemeente_naam': 'Westmaas'}, {'gemeente_naam': 'Woubrugge'}, {'gemeente_naam': 'Wijngaarden'}, {'gemeente_naam': 'Zevenhoven'}, {'gemeente_naam': 'Zevenhuizen'}, {'gemeente_naam': 'Zoetermeer'}, {'gemeente_naam': 'Zoeterwoude'}, {'gemeente_naam': 'Zuid-Beijerland'}, {'gemeente_naam': 'Zuidland'}, {'gemeente_naam': 'Zwartewaal'}, {'gemeente_naam': 'Zwijndrecht'}, {'gemeente_naam': 'Nederlek'}, {'gemeente_naam': 'Ouderkerk'}, {'gemeente_naam': 'Jacobswoude'}, {'gemeente_naam': 'Rijneveld'}, {'gemeente_naam': 'Moerhuizen'}, {'gemeente_naam': 'Giessenlanden'}, {'gemeente_naam': 'Graafstroom'}, {'gemeente_naam': 'Liesveld'}, {'gemeente_naam': 'Zederik'}, {'gemeente_naam': 'Aarlanderveen'}, {'gemeente_naam': 'Alphen'}, {'gemeente_naam': 'Barwoutswaarder'}, {'gemeente_naam': 'Den Bommel'}, {'gemeente_naam': 'Broek'}, {'gemeente_naam': 'Charlois'}, {'gemeente_naam': 'Delfshaven'}, {'gemeente_naam': 'Giessen-Nieuwkerk'}, {'gemeente_naam': 'Giessendam'}, {'gemeente_naam': 'Groote Lindt'}, {'gemeente_naam': 'Hardinxveld'}, {'gemeente_naam': 'Hekelingen'}, {'gemeente_naam': 'Hekendorp'}, {'gemeente_naam': 'Herkingen'}, {'gemeente_naam': 'Hillegersberg'}, {'gemeente_naam': 'Hof van Delft'}, {'gemeente_naam': 'Hoogvliet'}, {'gemeente_naam': 'Katendrecht'}, {'gemeente_naam': 'Kethel en Spaland'}, {'gemeente_naam': 'Kralingen'}, {'gemeente_naam': 'Lange Ruige Weide'}, {'gemeente_naam': 'Loosduinen'}, {'gemeente_naam': 'Melissant'}, {'gemeente_naam': 'Nieuw-Helvoet'}, {'gemeente_naam': 'Nieuwe Tonge'}, {'gemeente_naam': 'Nieuwenhoorn'}, {'gemeente_naam': 'Noord-Waddinxveen'}, {'gemeente_naam': 'Ooltgensplaat'}, {'gemeente_naam': 'Oost- en West-Barendrecht'}, {'gemeente_naam': 'Oud- en Nieuw-Mathenesse'}, {'gemeente_naam': 'Ouddorp'}, {'gemeente_naam': 'Oude Tonge'}, {'gemeente_naam': 'Oudshoorn'}, {'gemeente_naam': 'Overschie'}, {'gemeente_naam': 'Papekop'}, {'gemeente_naam': 'Pernis'}, {'gemeente_naam': 'Peursum'}, {'gemeente_naam': 'Rietveld'}, {'gemeente_naam': 'Schiebroek'}, {'gemeente_naam': 'Sluipwijk'}, {'gemeente_naam': 'Sommelsdijk'}, {'gemeente_naam': "Stad aan 't Haringvliet"}, {'gemeente_naam': 'Stein [ZH]'}, {'gemeente_naam': 'Stellendam'}, {'gemeente_naam': 'Stompwijk'}, {'gemeente_naam': 'Veur'}, {'gemeente_naam': 'Vlaardinger-Ambacht'}, {'gemeente_naam': 'Vrijenban'}, {'gemeente_naam': 'Waarder'}, {'gemeente_naam': 'IJsselmonde'}, {'gemeente_naam': 'Zegwaart'}, {'gemeente_naam': 'Zuid-Waddinxveen'}, {'gemeente_naam': 'Zwammerdam'}, {'gemeente_naam': 'Rijsoort en Strevelshoek'}, {'gemeente_naam': 'Bleskensgraaf'}, {'gemeente_naam': 'Abtsregt'}, {'gemeente_naam': 'Achttienhoven [ZH]'}, {'gemeente_naam': 'Ackersdijk en Vrouwenregt'}, {'gemeente_naam': 'Benthorn'}, {'gemeente_naam': 'Biert'}, {'gemeente_naam': 'Biesland'}, {'gemeente_naam': 'Cillaarshoek'}, {'gemeente_naam': 'Goidschalxoord'}, {'gemeente_naam': "'s-Gravenambacht"}, {'gemeente_naam': 'Groeneveld'}, {'gemeente_naam': 'Heer Oudelands Ambacht'}, {'gemeente_naam': 'Hodenpijl'}, {'gemeente_naam': 'Hofwegen'}, {'gemeente_naam': 'Hoog en Woud Harnasch'}, {'gemeente_naam': 'Hoogeveen [Delfland]'}, {'gemeente_naam': 'Hoogeveen [Rijnland]'}, {'gemeente_naam': 'Hoogmade'}, {'gemeente_naam': 'Kijfhoek'}, {'gemeente_naam': 'Kleine Lindt'}, {'gemeente_naam': 'Laagblokland'}, {'gemeente_naam': 'Meerdervoort'}, {'gemeente_naam': 'Middelburg [ZH]'}, {'gemeente_naam': 'De Mijl'}, {'gemeente_naam': 'Naters'}, {'gemeente_naam': 'Nederslingeland'}, {'gemeente_naam': "Nieuwland, Kortland en 's-Graveland"}, {'gemeente_naam': 'Nieuweveen'}, {'gemeente_naam': 'Onwaard'}, {'gemeente_naam': 'Oost-Barendrecht'}, {'gemeente_naam': 'Oude en Nieuwe Struiten'}, {'gemeente_naam': 'Oukoop'}, {'gemeente_naam': 'Rijsoort'}, {'gemeente_naam': 'Roxenisse'}, {'gemeente_naam': 'Ruiven'}, {'gemeente_naam': 'Sandelingen Ambacht'}, {'gemeente_naam': 'Schuddebeurs en Simonshaven'}, {'gemeente_naam': 'Sint Anthoniepolder'}, {'gemeente_naam': 'Sint Maartensregt'}, {'gemeente_naam': 'Spijk'}, {'gemeente_naam': 'Stormpolder'}, {'gemeente_naam': 'Strevelshoek'}, {'gemeente_naam': 'Strijensas'}, {'gemeente_naam': 'Tempel'}, {'gemeente_naam': 'De Vennip'}, {'gemeente_naam': 'Vliet'}, {'gemeente_naam': 'Vrije en Lage Boekhorst'}, {'gemeente_naam': 'Vrijhoeven'}, {'gemeente_naam': 'West-Barendrecht'}, {'gemeente_naam': 'Wieldrecht'}, {'gemeente_naam': 'Zouteveen'}, {'gemeente_naam': 'Zuidbroek [ZH]'}, {'gemeente_naam': 'Zuidwijk'}, {'gemeente_naam': 'Teylingen'}, {'gemeente_naam': 'Lansingerland'}, {'gemeente_naam': 'Zevenhuizen-Moerkapelle'}, {'gemeente_naam': 'Rijnwoude'}, {'gemeente_naam': 'Liemeer'}, {'gemeente_naam': 'Westland'}, {'gemeente_naam': 'Midden-Delfland'}, {'gemeente_naam': 'Kaag en Braassem'}, {'gemeente_naam': 'Zuidplas'}, {'gemeente_naam': 'Bodegraven-Reeuwijk'}, {'gemeente_naam': 'Leidschendam-Voorburg'}, {'gemeente_naam': 'Goeree-Overflakkee'}, {'gemeente_naam': 'Pijnacker-Nootdorp'}, {'gemeente_naam': 'Molenwaard'}, {'gemeente_naam': 'Nissewaard'}, {'gemeente_naam': 'Krimpenerwaard'}, {'gemeente_naam': 'Hoeksche Waard'}, {'gemeente_naam': 'Molenlanden'}]
+```
+
+
+### Question template in Dutch and English
+**Wat is mijn {property}?**  
+**What is my {property}?**  
+
+### Tested example in Dutch and English
+**Wat is mijn provincie, adres Heiligenbergerweg 64, Amersfoort?**  
+**What is my province, address Heiligenbergerweg 64, Amersfoort?**  
+
+GraphQL Query of the old system:
+```graphql
+{
+  locatieserver(adres: "heiligenbergerweg 64 amersfoort") {
+    __typename rdf_seealso geometrie:centroide_rd chatbotanswer:prompt(prompt: "De provincienaam van dit perceel is @provincienaam") nummeraanduidingen (actualiteit: {
+    actueel_formeel: true, actueel_materieel: true}
+    ) {
+      hoofdadresvan(actualiteit: {
+      actueel_formeel: true, actueel_materieel: true}
+      ) {
+        perceel(actualiteit: {
+        actueel_formeel: true, actueel_materieel: true}
+        ) {
+        lokaaID:gml_id }
+      }
+    }
+  }
+}
+```
+
+Result in JSON output:
+```json
+{'data': {'locatieserver': {'__typename': 'LOCSERVER', 'rdf_seealso': 'http://bag.basisregistraties.overheid.nl/bag/id/nummeraanduiding/0307200000452057', 'geometrie': 'POINT(155848.25 462755.7)', 'chatbotanswer': 'De provincienaam van dit perceel is Utrecht', 'nummeraanduidingen': [{'hoofdadresvan': [{'perceel': [{'lokaaID': 'NL.IMKAD.KadastraalObject.25490295770000'}]}]}]}}}
+```
+
+SPARQL Query of the new system:
+```sparql
+PREFIX bag: <http://bag.basisregistraties.overheid.nl/def/bag#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sor: <https://data.kkg.kadaster.nl/sor/model/def/>
+PREFIX kad: <https://data.kkg.kadaster.nl/kad/model/def/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix wbk: <https://data.labs.kadaster.nl/cbs/wbk/vocab/>
+
+SELECT DISTINCT ?provincie ?provincie_naam
+WHERE {
+    ?vbo a sor:Verblijfsobject;
+         sor:hoofdadres ?na;
+         sor:maaktDeelUitVan ?geb.
+    
+    ?geb a sor:Gebouw;
+         geo:hasGeometry [
+             geo:asWKT ?geo_wgs84;
+             rdfs:isDefinedBy bag:
+         ].
+    
+    ?na a sor:Nummeraanduiding;
+         sor:huisnummer 64;
+         sor:ligtAan ?openbareruimte.
+    
+    ?openbareruimte a sor:OpenbareRuimte;
+                    skos:prefLabel "Heiligenbergerweg"@nl;
+                    sor:ligtIn ?woonplaats.
+    
+    ?woonplaats a sor:Woonplaats;
+                skos:prefLabel "Amersfoort"@nl.
+    
+    ?gemeente a sor:Gemeente;
+              geo:sfWithin ?provincie;
+              skos:prefLabel ?gemeente_naam.
+    
+    ?provincie a sor:Provincie;
+               skos:prefLabel ?provincie_naam.
+
+    ?gemeente owl:sameAs ?wbk_gemeente.
+  
+    ?wbk_gemeente a wbk:Gemeente;
+              rdfs:label ?wbk_gemeente_naam;
+              ^geo:sfWithin ?wbk_wijk.
+    ?wbk_wijk a wbk:Wijk;
+              rdfs:label ?wijk_naam;
+              geo:hasGeometry [
+                  geo:asWKT ?wijk_geo_wgs84;
+              ];
+              ^geo:sfWithin ?wbk_buurt.
+    ?wbk_buurt a wbk:Buurt;
+              rdfs:label ?buurt_naam;
+              geo:hasGeometry [
+                  geo:asWKT ?buurt_geo_wgs84;
+              ];
+              ^geo:sfWithin ?geb.
+}
+LIMIT 1
+```
+
+Result in JSON output:
+```json
+[{'provincie': 'https://data.kkg.kadaster.nl/id/provincie/0026', 'provincie_naam': 'Utrecht'}]
+```
+
+
+### Question template in Dutch and English
+**Hoe heet mijn gemeente?**  
+**What is the name of my municipality?**  
+
+### Tested example in Dutch and English
+**Hoe heet mijn gemeente, adres Nieuwe Gracht 7, Haarlem?**  
+**What is the name of my municipality, address Nieuwe Gracht 7, Haarlem?**  
+
+SPARQL Query of the old system:
+```sparql
+PREFIX sdo0: <http://schema.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+SELECT DISTINCT (sample(?geo_wgs84) as?geo_wgs84)?naam WHERE {
+  ?gemeente sdo0:identifier "GM0392";
+  rdfs:label?naam;
+geo:hasGeometry/geo:asWKT?geo_wgs84. }
+LIMIT 1
+```
+
+Result in JSON output:
+```json
+{A very long geometry, omitted here, 'naam': 'Haarlem'}
+```
+
+SPARQL Query of the new system:
+```sparql
+PREFIX bag: <http://bag.basisregistraties.overheid.nl/def/bag#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sor: <https://data.kkg.kadaster.nl/sor/model/def/>
+PREFIX kad: <https://data.kkg.kadaster.nl/kad/model/def/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix wbk: <https://data.labs.kadaster.nl/cbs/wbk/vocab/>
+
+SELECT DISTINCT ?gemeente ?gemeente_naam
+WHERE {
+    ?vbo a sor:Verblijfsobject;
+         sor:hoofdadres ?na;
+         sor:maaktDeelUitVan ?geb.
+    
+    ?geb a sor:Gebouw;
+         geo:hasGeometry [
+             geo:asWKT ?geo_wgs84;
+             rdfs:isDefinedBy bag:
+         ].
+    
+    ?na a sor:Nummeraanduiding;
+         sor:huisnummer 7;
+         sor:ligtAan ?openbareruimte.
+    
+    ?openbareruimte a sor:OpenbareRuimte;
+                    skos:prefLabel "Nieuwe Gracht"@nl;
+                    sor:ligtIn ?woonplaats.
+    
+    ?woonplaats a sor:Woonplaats;
+                skos:prefLabel "Haarlem"@nl.
+    
+    ?gemeente a sor:Gemeente;
+              skos:prefLabel ?gemeente_naam;
+              owl:sameAs ?wbk_gemeente.
+  
+    ?wbk_gemeente a wbk:Gemeente;
+              rdfs:label ?wbk_gemeente_naam;
+              ^geo:sfWithin ?wbk_wijk.
+    ?wbk_wijk a wbk:Wijk;
+              rdfs:label ?wijk_naam;
+              geo:hasGeometry [
+                  geo:asWKT ?wijk_geo_wgs84;
+              ];
+              ^geo:sfWithin ?wbk_buurt.
+    ?wbk_buurt a wbk:Buurt;
+              rdfs:label ?buurt_naam;
+              geo:hasGeometry [
+                  geo:asWKT ?buurt_geo_wgs84;
+              ];
+              ^geo:sfWithin ?geb.
+}
+LIMIT 1
+```
+
+Result in JSON output:
+```json
+[{'gemeente': 'https://data.kkg.kadaster.nl/id/gemeente/0392', 'gemeente_naam': 'Haarlem'}]
+```
+
+
